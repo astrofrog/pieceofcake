@@ -93,16 +93,21 @@ def main(template, output_dir, checkout):
         if isinstance(value, list):
             for index, item in enumerate(value):
                 print(f'{index + 1} - {item}')
-        values[key] = click.prompt(BOLD + '> ' + prompt + END,
-                                   default=default_value)
+            values[key] = value[click.prompt(BOLD + '> ' + prompt + END,
+                                             default=default_value)]
+        else:
+            values[key] = click.prompt(BOLD + '> ' + prompt + END,
+                                    default=default_value)
+
 
         print("")
 
     os.mkdir(output_dir)
 
     with open(os.path.join(tmpdir, 'cookiecutter.json'), 'w') as fout:
-        json.dump(values, fout)
+        json.dump(values, fout, indent='  ')
 
+    print(tmpdir)
     print("Running cookiecutter...")
     cookiecutter(tmpdir, output_dir=output_dir, no_input=True)
 
