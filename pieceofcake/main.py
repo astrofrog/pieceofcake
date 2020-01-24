@@ -1,16 +1,21 @@
 import os
+import sys
 import json
 import click
+import shutil
+import tempfile
 from textwrap import wrap
 from jinja2 import Environment, BaseLoader
+from cookiecutter.main import cookiecutter
 
 BOLD = '\033[1m'
 END = '\033[0m'
 
 @click.command()
 @click.argument('template')
+@click.argument('output_dir')
 @click.option('--checkout', default=None, help='branch, tag or commit to checkout after git clone')
-def main(template, checkout):
+def main(template, output_dir, checkout):
 
     from cookiecutter.config import get_user_config
     from cookiecutter.repository import determine_repo_dir
@@ -28,8 +33,11 @@ def main(template, checkout):
         no_input=True
     )
 
+    tmpdir = tempfile.mktemp()
+    shutil.copytree(repo_dir, tmpdir)
+
     # TODO: make it possible to specify directories/repos as in cookiecutter itself.
-    with open(os.path.join(repo_dir, 'cookiecutter.json')) as f:
+    with open(os.path.join(tmpdir, 'cookiecutter.json')) as f:
         cjson = json.load(f)
 
     print(BOLD + "Welcome to the pieceofcake, a user-friendly cookiecutter wrapper!" + END)
@@ -38,13 +46,25 @@ def main(template, checkout):
     print("your package.")
     print("")
 
+    if os.path.exists(output_dir):
+        if click.prompt(f'It looks like {output_dir} already exists. Can we safely remove it? (y/n)', type=str, default='n') == 'y':
+            shutil.rmtree(output_dir)
+            print("")
+        else:
+            print("Aborting...")
+            sys.exit(0)
+            pass
+
     parameters = cjson.get('_parameters')
 
     values = {}
 
     for key, value in cjson.items():
 
-        if key.startswith('_'):
+        if key == '_parameters':
+            continue
+        elif key.startswith('_'):
+            values[key] = value
             continue
 
         # Since default values can be jinja2 templates, we treat them as such
@@ -77,3 +97,14 @@ def main(template, checkout):
                                    default=default_value)
 
         print("")
+
+    os.mkdir(output_dir)
+
+    with open(os.path.join(tmpdir, 'cookiecutter.json'), 'w') as fout:
+        json.dump(values, fout)
+
+    print("Running cookiecutter...")
+    cookiecutter(tmpdir, output_dir=output_dir, no_input=True)
+
+    print("")
+    print(BOLD + f"You should now be all set! Your generated package is in {output_dir}" + END)
