@@ -14,7 +14,7 @@ of the parameters to set::
 With **pieceofcake**, the user is shown a series of verbose questions which provide
 more context as to the meaning/implications of each parameter::
 
-    % cookiecutter gh:astrofrog/fake-template final-package
+    % cookiecutter gh:astrofrog/fake-template output_dir
 
     Welcome to the pieceofcake, a user-friendly cookiecutter wrapper!
 
@@ -33,7 +33,7 @@ more context as to the meaning/implications of each parameter::
 
     Running cookiecutter...
 
-    You should now be all set! Your generated package is in final-package
+    You should now be all set! Your generated package is in output_dir
 
 Installing
 ==========
@@ -47,11 +47,12 @@ Using
 
 To use **pieceofcake**::
 
-    pieceofcake template output_directory
+    pieceofcake template output_dir
 
 where ``template`` follows the same syntax as for cookiecutter, and can be
-the path to a local directory, or e.g. gh:astrofrog/fake-template to use
-a GitHub repository.
+the path to a local directory, or e.g. ``gh:astrofrog/fake-template`` to use
+a GitHub repository.  The new package will be created as a subdirectory of
+``output_dir``.
 
 Note that ``pieceofcake`` will work with all cookiecutter templates, but
 nice questions will only be shown if the ``cookiecutter.json`` file contains
