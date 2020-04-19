@@ -46,15 +46,6 @@ def main(template, output_dir, checkout):
     print("your package.")
     print("")
 
-    if os.path.exists(output_dir):
-        if click.prompt(f'It looks like {output_dir} already exists. Can we safely remove it? (y/n)', type=str, default='n') == 'y':
-            shutil.rmtree(output_dir)
-            print("")
-        else:
-            print("Aborting...")
-            sys.exit(0)
-            pass
-
     parameters = cjson.get('_parameters')
 
     values = {}
@@ -102,13 +93,12 @@ def main(template, output_dir, checkout):
 
         print("")
 
-    os.mkdir(output_dir)
-
     with open(os.path.join(tmpdir, 'cookiecutter.json'), 'w') as fout:
         json.dump(values, fout, indent='  ')
 
     print(tmpdir)
     print("Running cookiecutter...")
+
     cookiecutter(tmpdir, output_dir=output_dir, no_input=True)
 
     print("")
